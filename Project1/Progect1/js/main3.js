@@ -4,7 +4,7 @@ ctx = canv.getContext('2d');
 
 canv.width = 500;//window.innerWidth;//400;
 canv.height = 500;//window.innerHeight;//400;
-n=10;
+n=20;
 map = new Array();
 map.lenght = n;
 XBegin= -1;
@@ -21,8 +21,37 @@ isDelDown = false;
 isBeginDown = false;
 isEndDown = false;
 isEnterDown = false;
+pointRoute=0;
+A = new Array();
+
+function grid(){
+  grid1("#FFFFFF");
+  grid1("#A9A9A9");
+}
+
+function grid1(a){ // Рисование сетки
+  ctx.beginPath();
+  ctx.strokeStyle = a;
+  ctx.lineWidth = 1;
+  
+  // Draw vertical lines
+  for (let x = 0; x <= canvas.width; x += size) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+  }
+  
+  // Draw horizontal lines
+  for (let y = 0; y <= canvas.height; y += size) {
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+  }
+  
+  ctx.stroke();}
+
 
 // ---------------------------- Рисование карты ------------------
+
+grid();
 map.length = n;
 for(var i=0; i<n; i++){
     map[i] = new Array();
@@ -58,25 +87,27 @@ document.addEventListener('keyup',function(e){
     if (e.keyCode == 13) isEnterDown = false;
 })
 
-canv.addEventListener('mousemove',function(e) {
+canv.addEventListener('mousemove',function(e) {//Если мышка двигается
     x = Math.floor(e.offsetX/size);
     y = Math.floor(e.offsetY/size);
 
-    if((isMouseDown)&&(isDelDown)){
+    if((isMouseDown)&&(isDelDown)){ //Очистк клетки
         ctx.beginPath();
         ctx.fillStyle = "white";
         ctx.fillRect(x*size,y*size, size, size);
         ctx.fill();
        map[x][y]=0;
+       grid();
     }
-    if((isMouseDown)&&(isDelDown==false)){
+    if((isMouseDown)&&(isDelDown==false)){ // Закрашивание клетки
         ctx.beginPath();
         ctx.fillStyle = "black";
         ctx.fillRect(x*size,y*size, size, size);
         ctx.fill();
-        map[x][y]=1; 
+        map[x][y]=1;
+        grid(); 
     }
-    if((isMouseDown)&&(isBeginDown)){
+    if((isMouseDown)&&(isBeginDown)){ // Закрашивание клетки входа
         ctx.beginPath();
         ctx.fillStyle = "red";
         ctx.fillRect(x*size,y*size, size, size);
@@ -93,8 +124,9 @@ canv.addEventListener('mousemove',function(e) {
         XBegin=x;X=x;
         YBegin=y;Y=y;
         map[x][y]=0;
+        grid();
     }
-    if((isMouseDown)&&(isEndDown)){
+    if((isMouseDown)&&(isEndDown)){ // Закрашивание клетки выхода
         ctx.beginPath();
         ctx.fillStyle = "blue";
         ctx.fillRect(x*size,y*size, size, size);
@@ -112,14 +144,36 @@ canv.addEventListener('mousemove',function(e) {
         XEnd=x;Xe=x;
         YEnd=y;Ye=y;
         map[x][y]=0;
+        grid();
     }
+    if((isMouseDown)&&(pointRoute)){ // Закрашивание найденного маршрута
+     // for(let i = 0; i < A.length - 1; i++){
+     //   for(let j = 0; j <= 1; j++){
+     //     console.log(A[i]);
+     //   }
+     // }
+     // console.log(1)
+      for (let i = 0; i < A.length+1; i++) {
+            if (i != A.length) {
+                xi = A[i][0];
+                yi = A[i][1];
+            }
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            ctx.fillRect(xi*size,yi*size, size, size);
+            ctx.fill();
+            map[xi][yi]=0;
+    }
+      pointRoute=0;
+      grid();
+  }
 
         
     
     //console.log(Math.floor(e.offsetX/n)*n);
 });
 
-canv.addEventListener('mousedown',function(e) {
+canv.addEventListener('mousedown',function(e) {//Если мышка не двигается
     x = Math.floor(e.offsetX/size);
     y = Math.floor(e.offsetY/size);
 
@@ -129,6 +183,7 @@ canv.addEventListener('mousedown',function(e) {
         ctx.fillRect(x*size,y*size, size, size);
         ctx.fill();
        map[x][y]=0;
+       grid();
     }
     if((isMouseDown)&&(isDelDown==false)){
         ctx.beginPath();
@@ -136,6 +191,7 @@ canv.addEventListener('mousedown',function(e) {
         ctx.fillRect(x*size,y*size, size, size);
         ctx.fill();
         map[x][y]=1; 
+        grid();
     }
     if((isMouseDown)&&(isBeginDown)){
         ctx.beginPath();
@@ -154,6 +210,7 @@ canv.addEventListener('mousedown',function(e) {
         XBegin=x;X=x;
         YBegin=y;Y=y;
         map[x][y]=0;
+       grid();
     }
     if((isMouseDown)&&(isEndDown)){
         ctx.beginPath();
@@ -173,8 +230,38 @@ canv.addEventListener('mousedown',function(e) {
         XEnd=x;Xe=x;
         YEnd=y;Ye=y;
         map[x][y]=0;
+        grid();
     }
 
+    if((isMouseDown)&&(pointRoute)){
+       for (let i = 0; i < A.length+1; i++) {
+             if (i != A.length) {
+                 xi = A[i][0];
+                 yi = A[i][1];
+             }
+             ctx.beginPath();
+             ctx.fillStyle = "white";
+             ctx.fillRect(xi*size,yi*size, size, size);
+             ctx.fill();
+             map[xi][yi]=0;
+     }
+
+/*function Point1(i,color){
+  xi = A[i][0];
+  yi = A[i][1];
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.fillRect(xi*size,yi*size, size, size);
+  ctx.fill();
+  map[xi][yi]=0;
+}
+
+Point1(0,"red");
+Point1(A.length,"blue");*/
+
+       pointRoute=0;
+       grid();
+   }
         
     
     //console.log(Math.floor(e.offsetX/n)*n);
@@ -222,7 +309,7 @@ const bfs = function(map, fromRow, fromColumn, toRow, toColumn) {
       for (const [cell, path] of step) {
         const [row, column] = unpack(cell);
         if (row === toRow && column === toColumn) {
-            let arr = new Array();;
+/*            let arr = new Array();;
             for (i=0;i<path.length-1; i++){
                 if(i!=path.length){
                     arr[i] = path[i].split(':', 2);
@@ -238,7 +325,48 @@ const bfs = function(map, fromRow, fromColumn, toRow, toColumn) {
                 ctx.lineWidth = size/5; //толщина линии
                 ctx.stroke();
             }
+            return path;*/
+
+            let arr = new Array();;
+            for (let i = 0; i < path.length; i++) {
+                setTimeout(function() {
+                    if (i != path.length) {
+                        arr[i] = path[i].split(':', 2);
+                        if(i+1!=path.length)
+                        arr[i + 1] = path[i + 1].split(':', 2);
+                        xi = arr[i][0];
+                        yi = arr[i][1];
+                        if(i+1!=path.length){
+                        xj = arr[i + 1][0];
+                        yj = arr[i + 1][1];}
+
+                        A[i] = new Array();
+                        A[i].length = 2;
+
+                        for(let j = 0; j < 2; j++){
+                          A[i][j]=arr[i][j];
+                          //console.log(A[i]);
+                        
+                        }
+                    }
+                    ctx.beginPath();
+                    ctx.moveTo(xi * size + size / 2, yi * size + size / 2);
+                    ctx.lineTo(xj * size + size / 2, yj * size + size / 2);
+                    ctx.strokeStyle = "yellow"; //цвет линии
+                    ctx.lineWidth = size / 5; //толщина линии
+                    ctx.stroke();
+                }, i * 100);
+            }
+           /* for(let i = 0; i < arr.length - 1; i++){
+              for(let j = 0; j <= 1; j++){
+                A[i] = new Array();
+                A[i][j]=arr[i][j];
+                console.log(A[i][j]);
+              }
+            }*/
+            pointRoute=1;
             return path;
+
         }
   
         tryAddCell(row - 1, column, path);
@@ -249,14 +377,14 @@ const bfs = function(map, fromRow, fromColumn, toRow, toColumn) {
   
       step = nextStep;
     }
-  
     return null;
   };
 
 //-------------Вывод пути при нажатии enter
   document.addEventListener('keydown',function(e){
 if(isEnterDown){
-    bfs(map, XBegin, YBegin, XEnd, YEnd
+    bfs(map, XBegin, YBegin, XEnd, YEnd);
+   // console.log(bfs(map, XBegin, YBegin, XEnd, YEnd)); 
    // console.log(isEnterDown);
    //console.log(YBegin, XBegin, YEnd, XEnd);
    /* document.write("map:<br>")
@@ -265,7 +393,7 @@ if(isEnterDown){
   for (var j=0; j<map[i].length; j++)
     document.write(map[j][i]+" ")
   document.write("<br>")
-}*/);
+}*/
 if(bfs(map, XBegin, YBegin, XEnd, YEnd)==null){
     console.log("Выхода нет") 
 }
